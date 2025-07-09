@@ -1,0 +1,65 @@
+### 📄 List all files in Google Drive
+GET http://localhost:3000/api/google-drive/getAll
+
+### 🌐 Upload a file from an external URL
+POST http://localhost:3000/api/google-drive/upload-from-url
+Content-Type: application/json
+
+{
+  "url": "https://github.com/fgp555.png"
+}
+
+# https://drive.google.com/file/d/1Jl1W60ECbD_GaeKA2lBEKO7HR_NZip2R/view?usp=drivesdk
+### 🔍 Get metadata for a specific file
+GET http://localhost:3000/api/google-drive/1Jl1W60ECbD_GaeKA2lBEKO7HR_NZip2R
+
+# https://drive.google.com/file/d/1Jl1W60ECbD_GaeKA2lBEKO7HR_NZip2R/preview
+### 🎞️ Get preview URL for embedding a file
+GET http://localhost:3000/api/google-drive/preview/1Jl1W60ECbD_GaeKA2lBEKO7HR_NZip2R
+
+### 🗑️ Delete a file from Google Drive
+DELETE http://localhost:3000/api/google-drive/1Jl1W60ECbD_GaeKA2lBEKO7HR_NZip2R
+
+
+### ✏️ Rename a file in Google Drive
+PATCH http://localhost:3000/api/google-drive/1Jl1W60ECbD_GaeKA2lBEKO7HR_NZip2R
+Content-Type: application/json
+
+{
+  "name": "renamed-image.png"
+}
+
+### 📤 Upload a file (basic upload)
+POST http://localhost:3000/api/google-drive/upload
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="test.txt"
+Content-Type: text/plain
+
+Hello, this is a test file.
+--MyBoundary--
+
+
+### 📤 Upload a file with name and description
+POST http://localhost:3000/api/google-drive/upload
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="name"
+
+my-file
+--MyBoundary
+Content-Disposition: form-data; name="description"
+
+my-description
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="README.md"
+Content-Type: text/plain
+
+< ../README.md
+--MyBoundary--
+
+
+
+

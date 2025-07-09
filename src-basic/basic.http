@@ -1,0 +1,6 @@
+
+# GET http://localhost:3000/api/google-oauth/auth
+
+# GET http://localhost:3000/api/google-oauth/callback
+
+GET http://localhost:3000/api/google-drive/upload

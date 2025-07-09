@@ -1,0 +1,24 @@
+{
+  "name": "nodejs-google-drive-oauth",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch src/server.js",
+    "basic": "node --watch src-basic/server.js",
+    "start": "node src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.1.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "googleapis": "^152.0.0",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.1"
+  }
+}

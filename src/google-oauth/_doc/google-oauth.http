@@ -1,0 +1,12 @@
+# GET http://localhost:3000/api/google-oauth/auth
+
+# GET http://localhost:3000/api/google-oauth/callback
+
+
+### ✅ Check Current Access Token Status
+GET http://localhost:3000/api/google-oauth/check-token
+# Verifies if the current access token is still valid and returns user info and token expiration details.
+
+### 🔄 Refresh Access Token
+GET http://localhost:3000/api/google-oauth/refresh-token
+# Requests a new access token using the stored refresh token (if available and valid).

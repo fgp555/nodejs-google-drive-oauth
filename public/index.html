@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📁 Google Drive Files</title>
+
+    <!-- PicoCSS (auto theme support) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.min.css" />
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .card {
+        padding: 1rem;
+        border: 1px solid var(--pico-muted-border-color);
+        border-radius: var(--pico-border-radius);
+        background: var(--pico-background-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 0.5rem;
+      }
+
+      .thumb {
+        max-width: 100%;
+        border-radius: 0.5rem;
+        border: 1px solid #ccc;
+      }
+
+      .file-icon {
+        font-size: 2rem;
+        color: var(--pico-muted-color);
+      }
+
+      .buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: auto;
+        flex-direction: column;
+      }
+
+      .loading {
+        text-align: center;
+        margin-top: 2rem;
+        color: var(--pico-muted-color);
+      }
+
+      .theme-toggle {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+      }
+
+      [role="button"],
+      button {
+        padding: 0.5rem 1rem;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <button class="theme-toggle secondary" onclick="toggleTheme()">🌓 Toggle Theme</button>
+      <h1>📂 Google Drive Files</h1>
+      <div class="loading" id="loading">Loading files...</div>
+      <div class="grid" id="fileGrid" style="display: none"></div>
+    </main>
+
+    <script>
+      // const apiBaseUrl = "/api/google-drive";
+      const apiBaseUrl = "http://localhost:3000/api/google-drive";
+
+      function toggleTheme() {
+        const current = document.documentElement.getAttribute("data-theme");
+        const next = current === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        localStorage.setItem("theme", next);
+      }
+
+      // Load theme from localStorage
+      (() => {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+          document.documentElement.setAttribute("data-theme", savedTheme);
+        } else {
+          // Prefer system theme if no saved setting
+          const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+        }
+      })();
+
+      async function loadFiles() {
+        try {
+          const res = await fetch(`${apiBaseUrl}/getAll`);
+          const data = await res.json();
+
+          const grid = document.getElementById("fileGrid");
+          const loading = document.getElementById("loading");
+
+          loading.style.display = "none";
+          grid.style.display = "grid";
+
+          data.files.forEach((file) => {
+            const card = document.createElement("div");
+            card.classList.add("card");
+
+            const isImage = file.mimeType.startsWith("image/");
+            let previewHTML;
+
+            if (isImage) {
+              previewHTML = `<a href="${file.webViewLink}" target="_blank">
+                <img class="thumb" src="https://drive.google.com/thumbnail?id=${file.id}" alt="${file.name}" />
+              </a>`;
+            } else {
+              const icon = file.mimeType.includes("pdf")
+                ? "fa-file-pdf"
+                : file.mimeType.includes("word")
+                ? "fa-file-word"
+                : file.mimeType.includes("sheet")
+                ? "fa-file-excel"
+                : file.mimeType.includes("zip")
+                ? "fa-file-zipper"
+                : "fa-file";
+              previewHTML = `<i class="fas ${icon} file-icon" title="${file.mimeType}"></i>`;
+            }
+
+            const created = new Date(file.createdTime).toLocaleString();
+            const downloadUrl = `https://drive.google.com/uc?export=download&id=${file.id}`;
+            const sizeInMB = file.size ? (parseInt(file.size) / (1024 * 1024)).toFixed(2) : "—";
+
+            card.innerHTML = `
+              ${previewHTML}
+              <strong>${file.name}</strong>
+              <small>${file.mimeType}</small>
+              <small>Size: ${sizeInMB} MB</small>
+              <small>Created: ${created}</small>
+              <div class="buttons">
+                <a href="${file.webViewLink}" target="_blank" role="button">🔗 Open</a>
+                <a href="${downloadUrl}" target="_blank" role="button" class="secondary">⬇️ Download</a>
+                <button class="contrast" data-id="${file.id}">🗑️ Delete</button>
+              </div>
+            `;
+
+            // 💥 Lógica para botón Delete
+            const deleteBtn = card.querySelector("button[data-id]");
+            deleteBtn.addEventListener("click", async () => {
+              if (confirm(`¿Eliminar "${file.name}"?`)) {
+                const res = await fetch(`${apiBaseUrl}/${file.id}`, {
+                  method: "DELETE",
+                });
+                if (res.ok) {
+                  card.remove();
+                } else {
+                  alert("❌ Error al eliminar");
+                }
+              }
+            });
+
+            grid.appendChild(card);
+          });
+        } catch (err) {
+          console.error("❌ Failed to load files:", err);
+          document.getElementById("loading").textContent = "⚠️ Error loading files.";
+        }
+      }
+
+      loadFiles();
+    </script>
+  </body>
+</html>
